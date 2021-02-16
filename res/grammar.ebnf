@@ -9,7 +9,7 @@
        <import> -> import <string>
        <string> -> string
                  | rawstring
-      <vardecl> -> var <optmut> ident <opttype> <optassign>
+      <vardecl> -> var <params> <optassign>
    <optmut> -> mut
                  | ε
       <opttype> -> <type>
@@ -26,9 +26,11 @@
                  | ε
      <receiver> -> ( <param> )
                  | ε
-       <params> -> <param> , <params>
+       <params> -> <param> <paramtail>
                  | ε
-        <param> -> <optmut> ident <type>
+		<paramtail> -> , <params>
+								 | ε
+        <param> -> <optmut> ident <opttype>
         <stmts> -> <stmt> ; <stmts>
                  | ε
          <stmt> -> <simpledecl>
@@ -45,6 +47,7 @@
                  | if <expr> { <stmts> } <else>
                  | switch <expr> { <switches> }
                  | & <pkgident> <optargs> <opttypeassigns>
+								 | <lambda>
                  | [ <args> ]
                  | ( <args> )
                  | int
@@ -62,12 +65,15 @@
                  | . ( <type> ) { <stmts> }
                  | else { <stmts> }
       <expruse> -> <sub>
-                 | <funccall> <expruse>
+                 | <opttypeargs> <funccall> <expruse>
                  | <binary>
           <sub> -> . <subuse>
        <subuse> -> ( <type> )
                  | ident <expruse>
-      <funcall> -> <opttypeargs> ( <args> )
+		 <funccall> -> ( <args> ) <optlambda>
+								 | <lambda>
+		<optlambda> -> <lambda>
+				         | ε
   <opttypeargs> -> [ <typeargs> ]
                  | ε
      <typeargs> -> <type> , <typeargs>
@@ -120,5 +126,8 @@
                  | func <receiver> <optmut> ident ( <params> ) <opttype>
                  | oneof { <typelist> }
                  | <type>
+			 <lambda> -> -> <optparams> { <stmts> }
+		<optparams> -> ( <params> )
+			           | ε
 
 # vim: ts=2 sw=2 et
