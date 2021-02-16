@@ -22,6 +22,7 @@ anyint anyfloat numeric
 string array
 bool true false
 any unit
+result error opt
 ```
 
 Syntax
@@ -424,6 +425,34 @@ The zero value of booleans is `false`.
 `unit` is pretty much the opposite. It is a type that no matter what only has one valid value, `unit`. It is the implicit return type of functions with no return type declared. It is legal to use `unit` as a constraint, but pointless, as it it would only allow the type `unit` itself to be used.
 
 The zero value of `any` is `unit`, as is, obviously, the zero value of `unit`.
+
+### `result`, `error`, and `opt`
+
+`result` is used to indicate that a function can return an error _or_ a value:
+
+```stele
+type [T, R any] result oneof {
+	R
+	error
+}
+```
+
+`error` holds information about runtime errors that occur:
+
+```stele
+type error {
+	func error() string
+}
+```
+
+`opt` is a type that indicates that a value is optional:
+
+```stele
+type [T, V any] opt oneof {
+	V
+	unit
+}
+```
 
 ### Functions
 

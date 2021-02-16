@@ -28,7 +28,7 @@ type rot13 {
 }
 
 // write is required to satisfy io.writer.
-func (mut r rot13) write(data array[byte]) error[int] {
+func (mut r rot13) write(data array[byte]) result[int] {
 	r.w.write(
 		iter.ofArray(data)
 			.map -> (c) {
