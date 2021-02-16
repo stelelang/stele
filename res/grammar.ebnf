@@ -1,0 +1,124 @@
+       <script> -> <globaldecls> Ω
+  <globaldecls> -> <globaldecl> ; <globaldecls>
+                 | ε
+   <globaldecl> -> <import>
+                 | <privacy> <simpledecl>
+   <simpledecl> -> <vardecl>
+                 | <funcdecl>
+                 | <typedecl>
+       <import> -> import <string>
+       <string> -> string
+                 | rawstring
+      <vardecl> -> var <optmut> ident <opttype> <optassign>
+   <optmut> -> mut
+                 | ε
+      <opttype> -> <type>
+                 | ε
+      <optassign> -> = <expr>
+                 | ε
+     <pkgident> -> ident <optsub>
+       <optsub> -> . ident
+                 | ε
+     <funcdecl> -> func <opttypeparams> <receiver> <optmut> ident ( <params> ) <opttype> { <stmts> }
+<opttypeparams> -> [ <typeparams> ]
+                 | ε
+   <typeparams> -> ident <type> , <typeparams>
+                 | ε
+     <receiver> -> ( <param> )
+                 | ε
+       <params> -> <param> , <params>
+                 | ε
+        <param> -> <optmut> ident <type>
+        <stmts> -> <stmt> ; <stmts>
+                 | ε
+         <stmt> -> <simpledecl>
+                 | <expr>
+                 | <shortvardecls> = <expr>
+                 | ε
+<shortvardecls> -> <shortvardecl> , <shortvardecls>
+                 | ε
+ <shortvardecl> -> <optshortdecl> <optmut> ident
+ <optshortdecl> -> :
+                 | ε
+         <expr> -> <unary> <single> <expruse>
+       <single> -> ident
+                 | if <expr> { <stmts> } <else>
+                 | switch <expr> { <switches> }
+                 | & <pkgident> <optargs> <opttypeassigns>
+                 | [ <args> ]
+                 | ( <args> )
+                 | int
+                 | float
+                 | string
+                 | rawstring
+                 | byte
+         <else> -> else <optif> { <stmts> } <else>
+                 | ε
+        <optif> -> if <expr>
+                 | ε
+     <switches> -> <switch> ; <switches>
+                 | ε
+       <switch> -> <cmpr> { <stmts> }
+                 | . ( <type> ) { <stmts> }
+                 | else { <stmts> }
+      <expruse> -> <sub>
+                 | <funccall> <expruse>
+                 | <binary>
+          <sub> -> . <subuse>
+       <subuse> -> ( <type> )
+                 | ident <expruse>
+      <funcall> -> <opttypeargs> ( <args> )
+  <opttypeargs> -> [ <typeargs> ]
+                 | ε
+     <typeargs> -> <type> , <typeargs>
+                 | ε
+     <typelist> -> <type> ; <typelist>
+                 | ε
+        <unary> -> !
+                 | ~
+                 | -
+                 | ε
+       <binary> -> <math>
+                 | <cmpr>
+                 | ε
+         <math> -> + <expr>
+                 | - <expr>
+                 | * <expr>
+                 | / <expr>
+                 | ** <expr>
+                 | & <expr>
+                 | | <expr>
+                 | ^ <expr>
+                 | && <expr>
+                 | || <expr>
+         <cmpr> -> == <expr>
+                 | != <expr>
+                 | > <expr>
+                 | < <expr>
+                 | <= <expr>
+                 | >= <expr>
+      <optargs> -> ( <args> )
+                 | ε
+  <opttypeassigns> -> { <typeassigns> }
+                 | ε
+         <args> -> <expr> , <args>
+                 | ε
+  <typeassigns> -> ident = <expr> ; <typeassigns>
+                 | ε
+         <type> -> <pkgident> <opttypeargs>
+                 | <tupletype>
+                 | type <typebody>
+    <tupletype> -> ( <typeargs> )
+     <typedecl> -> type <typegenparams> ident <typebody>
+<typegenparams> -> [ ident , <typeparams> ]
+                 | ε
+     <typebody> -> { <typespecs> }
+                 | <typespec>
+    <typespecs> -> <typespec> ; <typespecs>
+                 | ε
+     <typespec> -> var ident <type>
+                 | func <receiver> <optmut> ident ( <params> ) <opttype>
+                 | oneof { <typelist> }
+                 | <type>
+
+# vim: ts=2 sw=2 et
