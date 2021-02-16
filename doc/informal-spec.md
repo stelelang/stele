@@ -27,7 +27,7 @@ any unit
 Syntax
 ------
 
-Basic syntax is Go-like, but there are a few differences. Each file is a single package, and the top-level of a file is a list of declarations and import statements. All statements end with a semicolon, but the scanner automatically inserts semicolons into the token stream whenever it sees a newline _unless_ was a comma (`,`), or the next token after the newline is a `.`.
+Basic syntax is Go-like, but there are a few differences. Each file is a single package, and the top-level of a file is a list of declarations and import statements. All statements end with a semicolon, but the scanner automatically inserts semicolons into the token stream whenever it sees a newline _unless_ the last token seen was a comma (`,`), or the next token after the newline is a `.`.
 
 A full example package might look like
 
