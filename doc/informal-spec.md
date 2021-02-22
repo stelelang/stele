@@ -35,7 +35,7 @@ A full example package might look like
 ```stele
 import "io"
 
-func mut main() {
+func main() mut {
 	io.stdout.writeln("This is an example.")
 }
 ```
@@ -57,7 +57,7 @@ Variables, like all declarations, default to being public. A variable, or other 
 Variables are, by default, immutable. To make a variable mutable, use the `mut` keyword:
 
 ```stele
-var mut example float = 2.3
+var example mut float = 2.3
 // ...
 example = 5.2
 ```
@@ -85,16 +85,16 @@ As a shorthand, a local variable may be declared by omitting the `var` keyword a
 :newVariable = "a new immutable variable"
 ```
 
-A mutable variable may be declared in this way by inserting the keyword `mut` between the `:` and the name of the variable:
+A mutable variable may be declared in this way by inserting the keyword `mut` after the name of the variable:
 
 ```stele
-:mut newVariable = "a new mutable variable"
+:newVariable mut = "a new mutable variable"
 ```
 
 Finally, multiple variables may declared or assigned by mixing these with several identifiers separated by commas:
 
 ```stele
-existingVariable, :newImmutableVariable, :mut newMutableVariable = ("the number", "of elements", "must match")
+existingVariable, :newImmutableVariable, :newMutableVariable mut = ("the number", "of elements", "must match")
 ```
 
 Due to potential ambiguities, numeric literals in Stele have no type from the point of view of a combined declaration and assignment. For this reason, all declarations that assign a literal of a numeric type must be manually typed:
@@ -137,7 +137,7 @@ func example(a, b int) int { /* ... */ }
 Function arguments may be either mutable or immutable. Mutable arguments are passed by reference, allowing mutation of fields to affect data outside of the method:
 
 ```stele
-func example(mut v someType) {
+func example(v mut someType) {
 	// The instance of someType passed to the function, if also mutable, reflects the change made here.
 	v.someIntField = 3
 }
@@ -164,10 +164,10 @@ If a method has a generic receiver type, it is attached _only_ to applicable typ
 
 Functions are, like variables, immutable by default. In the case of functions, what this means is that the function is pure in the sense that it can only perform operations that affect state that is explicitly passed to it. It is an error to perform a mutable operation inside of an immutable function, such as assigning to a variable or calling a mutable function. Assigning to a field of a mutable argument is allowed in an immutable function, but calling a mutable method of an argument is not.
 
-To declare a function to be mutable, simply use the `mut` keyword before the function name, as in a variable declaration:
+To declare a function to be mutable, simply use the `mut` keyword before the function's return type:
 
 ```stele
-func mut example() {
+func example() mut {
 	someMutableVariableFromAParentScope = 5
 }
 ```
@@ -175,7 +175,7 @@ func mut example() {
 Finally, the receiver, like any other function argument, must be declared mutable as well if they are going to be mutated:
 
 ```stele
-func (mut e example) doubleInternalValue() {
+func (e mut example) doubleInternalValue() {
 	e.val *= 2
 }
 ```
@@ -188,17 +188,28 @@ Types are declared via the `type` keyword:
 ```stele
 type example {
 	var val int
-	func mut print()
+	func print() mut
 }
 ```
 
 Types define a set of functionality that is available for a value via a list of fields and methods. The above defines a type named `example` which has a `int` field named `val` and a mutable method named `print`. Given the above, a variable defined as
 
 ```stele
-var mut e example
+var e mut example
 ```
 
-may store any type which has a field named `val` of type `int` and a method named `print` with no arguments and a `unit` return type and, consequently, may have that field and method accessed via that variable.
+may store any type which has a field named `val` of type `int` and a mutable method named `print` with no arguments and a `unit` return type and, consequently, may have that field and method accessed via that variable.
+
+To declare a method with a mutable receiver, place the `mut` keyword after the `func` keyword in the type definition:
+
+```stele
+type example {
+	// Fields are not declared mutable. Instead, mutability of fields is
+	// dependant on the variable the instance is stored in.
+	var val int
+	func mut double()
+}
+```
 
 A type definition may have type parameters, much like a function. If a type specifies any type parameters, it must start the list with an unconstrained type parameter that is used to indicate its own underlying type. For example, to declare a type which has an add method that takes another value of its own type and returns a new value of that type:
 
@@ -243,7 +254,7 @@ type [T] example {
 	int
 }
 
-func (e example) mut print() {
+func (e example) print() mut {
 	// ...
 }
 
@@ -297,7 +308,7 @@ Tuples are essentially ordered groupings of values of varying types. They are, i
 
 ```stele
 // e is a tuple containing a string and an int, in that order.
-var mut e (string, int)
+var e mut (string, int)
 ```
 
 To define a named tuple type, simply embed a tuple type definition into the type's declaration:
@@ -326,7 +337,7 @@ type example {
 To access elements of a tuple without destructuring, simply access them like array indices:
 
 ```stele
-var mut e (string, int)
+var e mut (string, int)
 e[0] // string
 e[1] // int
 ```
@@ -337,7 +348,7 @@ Anywhere where a type name can be used, an anonymous type may be used instead. A
 
 ```stele
 // Defines a variable named e of an anonymous type containing a single field, v, of e's own underlying type.
-var mut e type [T] {
+var e mut type [T] {
 	val v T
 }
 ```
@@ -460,14 +471,14 @@ Function signatures may be specified as a `->` followed by an optional parenthes
 
 ```stele
 // e stores a function that takes two ints and returns an int.
-var mut e -> (int, int) int
+var e mut -> (int, int) int
 ```
 
 As mutability is part of the type of function values, not just of a variable holding a function, mutability must be specified if a variable might hold a mutable function reference:
 
 ```stele
-// e stores a mutable function that takes no arguments and returns unit.
-var mut e -> mut
+// e stores a mutable function that takes an int and returns unit.
+var e mut -> (int) mut
 ```
 
 Note that a function must be mutable in order to call other mutable functions, and therefore any function which takes a mutable function as an argument must also be mutable in order to call that function.
@@ -624,7 +635,7 @@ someFunction(1, 2) -> (v) { v + 1 }
 If the function being called _only_ takes a single function argument, then the parentheses for the call itself may also be omitted:
 
 ```stele
-someIterator.forEach -> mut (v) { io.stdout.writeln(v) }
+someIterator.forEach -> (v) mut { io.stdout.writeln(v) }
 ```
 
 Control Flow
