@@ -3,7 +3,7 @@ Stele
 
 *Disclaimer: Stele is currently _very_ early in development. Many things, including syntax, intended features, and the example in this README are subject to change at basically any time.*
 
-Stele is a statically duck-typed language. It uses structural, implicitly satisfied interfaces to provide the benefits of both a static type system and a duck-typed language.
+Stele is a statically duck-typed language. It uses structural, implicitly satisfied interfaces to provide the benefits of both a static type system and duck typing.
 
 Features
 --------
@@ -28,7 +28,7 @@ type rot13 {
 }
 
 // write is required to satisfy io.writer.
-func (mut r rot13) write(data array[byte]) result[int] {
+func (r rot13) write(data array[byte]) mut result[int] {
 	r.w.write(
 		iter.ofArray(data)
 			.map -> (c) {
@@ -43,15 +43,15 @@ func (mut r rot13) write(data array[byte]) result[int] {
 }
 
 // main is the entry point of the standard CLI interpreter.
-func mut main() {
+func main() mut {
 	// Declare a variable called encoder and build a rot13 instance to
 	// assign to it, assigning io.stdout to its w field.
-	:encoder = &rot13 {
+	:encoder = io.writer(&rot13 {
 		w = io.stdout
-	}
+	})
 
 	// Write to the encoder.
-	io.writeln(encoder, "This is an example.")
+	encoder.writeln("This is an example.")
 }
 ```
 
