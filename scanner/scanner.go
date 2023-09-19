@@ -16,6 +16,7 @@ type Scanner struct {
 
 	line, col int
 
+	wasUnread   bool
 	buf         strings.Builder
 	tok         Token
 	tline, tcol int
@@ -33,6 +34,7 @@ func (s *Scanner) Scan() bool {
 	}
 
 	s.tok = Token{}
+	s.buf.Reset()
 	state := s.whitespace
 
 	defer func() {
@@ -72,12 +74,16 @@ func (s *Scanner) Err() error {
 }
 
 func (s *Scanner) read() (c rune) {
-	s.col++
+	if !s.wasUnread {
+		s.col++
+	}
+
 	defer func() {
-		if c == '\n' {
+		if !s.wasUnread && (c == '\n') {
 			s.line++
 			s.col = 0
 		}
+		s.wasUnread = false
 	}()
 
 	c, _, err := s.r.ReadRune()
@@ -88,6 +94,7 @@ func (s *Scanner) read() (c rune) {
 }
 
 func (s *Scanner) unread() {
+	s.wasUnread = true
 	err := s.r.UnreadRune()
 	if err != nil {
 		s.throw(err)
@@ -105,6 +112,7 @@ func (s *Scanner) whitespace(eof bool) state {
 		return s.whitespace
 
 	case unicode.IsLetter(c) || (c == '_'):
+		s.buf.Reset()
 		s.buf.WriteRune(c)
 		s.startToken()
 		return s.ident
@@ -114,11 +122,13 @@ func (s *Scanner) whitespace(eof bool) state {
 		return s.string
 
 	case unicode.IsNumber(c):
-		s.startToken()
+		s.buf.Reset()
 		s.buf.WriteRune(c)
+		s.startToken()
 		return s.int
 
 	default:
+		s.buf.Reset()
 		s.buf.WriteRune(c)
 		s.startToken()
 		return s.symbol
@@ -240,6 +250,13 @@ func (s *Scanner) symbol(eof bool) state {
 	s.buf.WriteRune(s.read())
 	str := s.buf.String()
 
+	if str == "//" {
+		return s.singleLineComment
+	}
+	if str == "/*" {
+		return s.multiLineComment
+	}
+
 	if t, ok := symbols[str]; ok {
 		s.endToken(t, str)
 		return nil
@@ -252,6 +269,28 @@ func (s *Scanner) symbol(eof bool) state {
 
 	s.throw(fmt.Errorf("unexpected characters: %q", str))
 	return nil
+}
+
+func (s *Scanner) singleLineComment(eof bool) state {
+	if eof || (s.read() == '\n') {
+		return s.whitespace
+	}
+
+	return s.singleLineComment
+}
+
+func (s *Scanner) multiLineComment(eof bool) state {
+	if eof {
+		s.throw(errors.New("unterminated multi-line comment"))
+	}
+
+	str := string(s.read()) + string(s.read())
+	if str == "*/" {
+		return s.whitespace
+	}
+
+	s.unread()
+	return s.multiLineComment
 }
 
 func (s *Scanner) startToken() {
@@ -271,3 +310,6 @@ func (s *Scanner) endToken(t Type, v any) {
 type state func(eof bool) state
 
 type stateErr struct{ err error }
+
+func (s stateErr) Error() string { return s.err.Error() }
+func (s stateErr) Unwrap() error { return s.err }
