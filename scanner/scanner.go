@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -108,6 +109,15 @@ func (s *Scanner) whitespace(eof bool) state {
 		s.startToken()
 		return s.ident
 
+	case c == '"':
+		s.startToken()
+		return s.string
+
+	case unicode.IsNumber(c):
+		s.startToken()
+		s.buf.WriteRune(c)
+		return s.int
+
 	default:
 		s.throw(fmt.Errorf("unexpected character: %q", c))
 		return nil
@@ -137,6 +147,80 @@ func (s *Scanner) ident(eof bool) state {
 		s.unread()
 		str := s.buf.String()
 		s.endToken(tokenType(str), str)
+		return nil
+	}
+}
+
+func (s *Scanner) string(eof bool) state {
+	if eof {
+		s.throw(errors.New("unterminated string literal"))
+		return nil
+	}
+
+	c := s.read()
+	if c == '"' {
+		s.endToken(STRING, s.buf.String())
+		return nil
+	}
+
+	s.buf.WriteRune(c)
+	return s.string
+}
+
+func (s *Scanner) int(eof bool) state {
+	if eof {
+		v, err := strconv.ParseInt(s.buf.String(), 0, 64)
+		if err != nil {
+			s.throw(err)
+		}
+		s.endToken(INT, v)
+		return nil
+	}
+
+	c := s.read()
+	switch {
+	case unicode.IsNumber(c):
+		s.buf.WriteRune(c)
+		return s.int
+
+	case c == '.':
+		s.buf.WriteRune(c)
+		return s.float
+
+	default:
+		s.unread()
+		v, err := strconv.ParseInt(s.buf.String(), 0, 64)
+		if err != nil {
+			s.throw(err)
+		}
+		s.endToken(INT, v)
+		return nil
+	}
+}
+
+func (s *Scanner) float(eof bool) state {
+	if eof {
+		v, err := strconv.ParseFloat(s.buf.String(), 64)
+		if err != nil {
+			s.throw(err)
+		}
+		s.endToken(FLOAT, v)
+		return nil
+	}
+
+	c := s.read()
+	switch {
+	case unicode.IsNumber(c):
+		s.buf.WriteRune(c)
+		return s.float
+
+	default:
+		s.unread()
+		v, err := strconv.ParseFloat(s.buf.String(), 64)
+		if err != nil {
+			s.throw(err)
+		}
+		s.endToken(FLOAT, v)
 		return nil
 	}
 }
