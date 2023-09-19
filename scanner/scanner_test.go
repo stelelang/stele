@@ -14,6 +14,7 @@ func TestBasic(t *testing.T) {
 		{name: "Whitespace", input: "     "},
 		{name: "Func", input: "func", tok: Token{1, 1, FUNC, "func"}},
 		{name: "SimpleIdent", input: "test ", tok: Token{1, 1, IDENT, "test"}},
+		{name: "PrivateIdent", input: " _something_private", tok: Token{1, 2, IDENT, "_something_private"}},
 	}
 
 	for _, test := range tests {

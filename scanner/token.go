@@ -6,6 +6,9 @@ var (
 		"import": IMPORT,
 		"let":    LET,
 		"type":   TYPE,
+		"if":     IF,
+		"else":   ELSE,
+		"switch": SWITCH,
 	}
 
 	symbols = map[string]int{
@@ -30,6 +33,8 @@ var (
 		"!=": NOTEQUAL,
 		"=":  ASSIGN,
 		".":  DOT,
+		"<<": LSHIFT,
+		">>": RSHIFT,
 	}
 )
 
@@ -42,6 +47,9 @@ const (
 	IMPORT
 	LET
 	TYPE
+	IF
+	ELSE
+	SWITCH
 
 	// Symbols
 	LPAREN   // (
@@ -65,6 +73,8 @@ const (
 	NOTEQUAL // !=
 	ASSIGN   // =
 	DOT      // .
+	LSHIFT   // <<
+	RSHIFT   // >>
 
 	// Other
 	IDENT
