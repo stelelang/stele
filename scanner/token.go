@@ -25,6 +25,10 @@ var (
 		"-":  MINUS,
 		"*":  MULT,
 		"/":  DIV,
+		"+=": PLUSASSIGN,
+		"-=": MINUSASSIGN,
+		"*=": MULTASSIGN,
+		"/=": DIVASSIGN,
 		"^":  BITNOT,
 		"|":  BITOR,
 		"&":  BITAND,
@@ -56,29 +60,33 @@ const (
 	SWITCH
 
 	// Symbols
-	LPAREN   // (
-	RPAREN   // )
-	LBRACE   // {
-	RBRACE   // }
-	LBRACKET // [
-	RBRACKET // ]
-	SEMI     // ;
-	PLUS     // +
-	MINUS    // -
-	MULT     // *
-	DIV      // /
-	BITNOT   // ^
-	BITOR    // |
-	BITAND   // &
-	NOT      // !
-	OR       // ||
-	AND      // &&
-	EQUAL    // ==
-	NOTEQUAL // !=
-	ASSIGN   // =
-	DOT      // .
-	LSHIFT   // <<
-	RSHIFT   // >>
+	LPAREN      // (
+	RPAREN      // )
+	LBRACE      // {
+	RBRACE      // }
+	LBRACKET    // [
+	RBRACKET    // ]
+	SEMI        // ;
+	PLUS        // +
+	MINUS       // -
+	MULT        // *
+	DIV         // /
+	PLUSASSIGN  // +=
+	MINUSASSIGN // -=
+	MULTASSIGN  // *=
+	DIVASSIGN   // /=
+	BITNOT      // ^
+	BITOR       // |
+	BITAND      // &
+	NOT         // !
+	OR          // ||
+	AND         // &&
+	EQUAL       // ==
+	NOTEQUAL    // !=
+	ASSIGN      // =
+	DOT         // .
+	LSHIFT      // <<
+	RSHIFT      // >>
 
 	// Other
 	IDENT
