@@ -43,6 +43,7 @@ var (
 		">=": GE,
 		"=":  ASSIGN,
 		".":  DOT,
+		"|>": PIPE,
 		"<<": LSHIFT,
 		">>": RSHIFT,
 	}
@@ -93,6 +94,7 @@ const (
 	GE          // >=
 	ASSIGN      // =
 	DOT         // .
+	PIPE        // |>
 	LSHIFT      // <<
 	RSHIFT      // >>
 
