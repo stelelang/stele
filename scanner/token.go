@@ -37,6 +37,10 @@ var (
 		"&&": AND,
 		"==": EQUAL,
 		"!=": NOTEQUAL,
+		"<":  LT,
+		">":  GT,
+		"<=": LE,
+		">=": GE,
 		"=":  ASSIGN,
 		".":  DOT,
 		"<<": LSHIFT,
@@ -83,6 +87,10 @@ const (
 	AND         // &&
 	EQUAL       // ==
 	NOTEQUAL    // !=
+	LT          // <
+	GT          // >
+	LE          // <=
+	GE          // >=
 	ASSIGN      // =
 	DOT         // .
 	LSHIFT      // <<
