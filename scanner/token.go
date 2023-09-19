@@ -1,7 +1,9 @@
 package scanner
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type Type
+
 var (
-	keywords = map[string]int{
+	keywords = map[string]Type{
 		"func":   FUNC,
 		"import": IMPORT,
 		"let":    LET,
@@ -11,7 +13,7 @@ var (
 		"switch": SWITCH,
 	}
 
-	symbols = map[string]int{
+	symbols = map[string]Type{
 		"(":  LPAREN,
 		")":  RPAREN,
 		"{":  LBRACE,
@@ -38,9 +40,11 @@ var (
 	}
 )
 
+type Type int
+
 // Token types.
 const (
-	INVALID = iota
+	INVALID Type = iota
 
 	// Keywords
 	FUNC
@@ -83,11 +87,8 @@ const (
 	FLOAT
 )
 
-func tokenType(s string) int {
+func keywordOrIdent(s string) Type {
 	if t, ok := keywords[s]; ok {
-		return t
-	}
-	if t, ok := symbols[s]; ok {
 		return t
 	}
 	return IDENT
@@ -95,6 +96,6 @@ func tokenType(s string) int {
 
 type Token struct {
 	Line, Col int
-	Type      int
+	Type      Type
 	Val       any
 }

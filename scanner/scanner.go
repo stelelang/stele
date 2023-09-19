@@ -119,15 +119,16 @@ func (s *Scanner) whitespace(eof bool) state {
 		return s.int
 
 	default:
-		s.throw(fmt.Errorf("unexpected character: %q", c))
-		return nil
+		s.buf.WriteRune(c)
+		s.startToken()
+		return s.symbol
 	}
 }
 
 func (s *Scanner) ident(eof bool) state {
 	if eof {
 		str := s.buf.String()
-		s.endToken(tokenType(str), str)
+		s.endToken(keywordOrIdent(str), str)
 		return nil
 	}
 
@@ -140,13 +141,13 @@ func (s *Scanner) ident(eof bool) state {
 	case c == '!':
 		s.buf.WriteRune(c)
 		str := s.buf.String()
-		s.endToken(tokenType(str), str)
+		s.endToken(keywordOrIdent(str), str)
 		return nil
 
 	default:
 		s.unread()
 		str := s.buf.String()
-		s.endToken(tokenType(str), str)
+		s.endToken(keywordOrIdent(str), str)
 		return nil
 	}
 }
@@ -225,12 +226,40 @@ func (s *Scanner) float(eof bool) state {
 	}
 }
 
+func (s *Scanner) symbol(eof bool) state {
+	if eof {
+		str := s.buf.String()
+		t, ok := symbols[str]
+		if !ok {
+			s.throw(fmt.Errorf("unexpected characters: %q", str))
+		}
+		s.endToken(t, str)
+		return nil
+	}
+
+	s.buf.WriteRune(s.read())
+	str := s.buf.String()
+
+	if t, ok := symbols[str]; ok {
+		s.endToken(t, str)
+		return nil
+	}
+	if t, ok := symbols[str[:1]]; ok {
+		s.unread()
+		s.endToken(t, str[:1])
+		return nil
+	}
+
+	s.throw(fmt.Errorf("unexpected characters: %q", str))
+	return nil
+}
+
 func (s *Scanner) startToken() {
 	s.tline = s.line + 1
 	s.tcol = s.col
 }
 
-func (s *Scanner) endToken(t int, v any) {
+func (s *Scanner) endToken(t Type, v any) {
 	s.tok = Token{
 		Line: s.tline,
 		Col:  s.tcol,
