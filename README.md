@@ -20,22 +20,22 @@ Example
 import "io"
 import "iter"
 
+func ascii_rot(c! Int) Int {
+	switch {
+		(c >= 'a') && (c =< 'z') { c - 'a' + 13 % 26 + 'a' }
+		(c >= 'A') && (c =< 'Z') { c - 'A' + 13 % 26 + 'A' }
+		else { c }
+	}
+}
+
 // rot13 wraps a writer, transforming text written to it via ROT13.
 func rot13(w io.Writer) io.Writer {
 	io.Writer {
-		let w = w
-
-		func (r) write(data! Array[byte]) Result[Int] {
-			r.w.write(
-				iter.ofArray(data)
-					.map({ c! ->
-						switch {
-							(c >= 'a') && (c =< 'z') { c - 'a' + 13 % 26 + 'a' }
-							(c >= 'A') && (c =< 'Z') { c - 'A' + 13 % 26 + 'A' }
-							else { c }
-						}
-					})
-					.toArray(),
+		func (_) write(data! io.Bytes) Result[Int] {
+			w.write(
+				iters.of_array(data)
+					|> iters.map(ascii_rot)
+					|> io.bytes_from_iter(),
 			)
 		}
 	}
@@ -51,4 +51,4 @@ func main() {
 Documentation
 -------------
 
-* [Informal, Incomplete Spec](https://github.com/stelelang/stele/blob/master/doc/informal-spec.md)
+* [Informal, Incomplete, and often Inaccurate Spec](https://github.com/stelelang/stele/blob/master/doc/informal-spec.md)
