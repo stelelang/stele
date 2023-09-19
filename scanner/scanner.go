@@ -22,7 +22,7 @@ type Scanner struct {
 	tline, tcol int
 }
 
-func NewScanner(r io.Reader) *Scanner {
+func New(r io.Reader) *Scanner {
 	return &Scanner{
 		r: bufio.NewReader(r),
 	}

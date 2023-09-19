@@ -29,7 +29,7 @@ func TestBasic(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			s := NewScanner(strings.NewReader(test.input))
+			s := New(strings.NewReader(test.input))
 			s.Scan()
 			if s.Err() != nil {
 				t.Fatal(s.Err())
