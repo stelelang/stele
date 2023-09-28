@@ -273,15 +273,13 @@ func (s *Scanner) symbol(eof bool) state {
 		return nil
 	}
 
-	s.buf.WriteRune(s.read())
 	str := s.buf.String()
-
-	if str == "//" {
+	if str == "#" {
 		return s.singleLineComment
 	}
-	if str == "/*" {
-		return s.multiLineComment
-	}
+
+	s.buf.WriteRune(s.read())
+	str = s.buf.String()
 
 	if t, ok := symbols[str]; ok {
 		s.endToken(t, str)
@@ -299,24 +297,17 @@ func (s *Scanner) symbol(eof bool) state {
 
 func (s *Scanner) singleLineComment(eof bool) state {
 	if eof || (s.read() == '\n') {
-		return s.whitespace
+		if s.read() != '#' {
+			s.unread()
+			return s.whitespace
+		}
+
+		return s.singleLineComment
 	}
+
+	// TODO: Yield comments?
 
 	return s.singleLineComment
-}
-
-func (s *Scanner) multiLineComment(eof bool) state {
-	if eof {
-		s.throw(errors.New("unterminated multi-line comment"))
-	}
-
-	str := string(s.read()) + string(s.read())
-	if str == "*/" {
-		return s.whitespace
-	}
-
-	s.unread()
-	return s.multiLineComment
 }
 
 func (s *Scanner) startToken() {
