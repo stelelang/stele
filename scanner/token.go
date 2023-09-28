@@ -1,5 +1,10 @@
 package scanner
 
+import (
+	"fmt"
+	"slices"
+)
+
 //go:generate go run golang.org/x/tools/cmd/stringer -type Type
 
 var (
@@ -11,6 +16,7 @@ var (
 		"if":     IF,
 		"else":   ELSE,
 		"switch": SWITCH,
+		"as":     AS,
 	}
 
 	symbols = map[string]Type{
@@ -44,6 +50,7 @@ var (
 		"=":  ASSIGN,
 		".":  DOT,
 		"|>": PIPE,
+		",":  COMMA,
 		"<<": LSHIFT,
 		">>": RSHIFT,
 	}
@@ -63,6 +70,7 @@ const (
 	IF
 	ELSE
 	SWITCH
+	AS
 
 	// Symbols
 	LPAREN      // (
@@ -95,6 +103,7 @@ const (
 	ASSIGN      // =
 	DOT         // .
 	PIPE        // |>
+	COMMA       // ,
 	LSHIFT      // <<
 	RSHIFT      // >>
 
@@ -112,8 +121,24 @@ func keywordOrIdent(s string) Type {
 	return IDENT
 }
 
+func preventSemi(tok Token) bool {
+	return slices.Contains([]Type{
+		SEMI,
+		DOT,
+		PIPE,
+		COMMA,
+		LPAREN,
+		LBRACE,
+		LBRACKET,
+	}, tok.Type)
+}
+
 type Token struct {
 	Line, Col int
 	Type      Type
 	Val       any
+}
+
+func (t Token) String() string {
+	return fmt.Sprintf("%v (%v:%v)", t.Type, t.Line, t.Col)
 }
