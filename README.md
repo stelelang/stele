@@ -43,7 +43,7 @@ func rot13(w io.Writer) io.Writer {
 
 // main is the entry point of the standard CLI interpreter.
 func main() {
-	let encoder! = rot13(io.stdout!)
+	let encoder! = rot13(io.stdout())
 	io.writeln(encoder, "This is an example.")
 }
 ```
