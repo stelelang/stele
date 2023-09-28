@@ -101,6 +101,28 @@ func (s *Scanner) unread() {
 	}
 }
 
+func (s *Scanner) readEscapeSeq() rune {
+	switch c := s.read(); c {
+	case 't':
+		return '\t'
+	case 'n':
+		return '\n'
+	case 'r':
+		return '\r'
+
+	case 'x':
+		str := string([]rune{s.read(), s.read()})
+		v, err := strconv.ParseInt(str, 16, 0)
+		if err != nil {
+			s.throw(err)
+		}
+		return rune(v)
+
+	default:
+		return c
+	}
+}
+
 func (s *Scanner) whitespace(eof bool) state {
 	if eof {
 		return nil
@@ -169,7 +191,11 @@ func (s *Scanner) string(eof bool) state {
 	}
 
 	c := s.read()
-	if c == '"' {
+	switch c {
+	case '\\':
+		s.buf.WriteRune(s.readEscapeSeq())
+		return s.string
+	case '"':
 		s.endToken(STRING, s.buf.String())
 		return nil
 	}

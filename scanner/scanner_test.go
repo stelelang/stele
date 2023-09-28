@@ -23,6 +23,7 @@ func TestBasic(t *testing.T) {
 		{name: "Left Shift", input: "<<", tok: Token{1, 1, LSHIFT, "<<"}},
 		{name: "Single Line Comment", input: "// test\nsomething", tok: Token{2, 1, IDENT, "something"}},
 		{name: "Multi Line Comment", input: "/* test\ntwo */something", tok: Token{2, 7, IDENT, "something"}},
+		{name: "String Escape Sequence", input: `"\t\n\"test"`, tok: Token{1, 1, STRING, "\t\n\"test"}},
 	}
 
 	for _, test := range tests {
