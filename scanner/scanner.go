@@ -149,6 +149,10 @@ func (s *Scanner) whitespace(eof bool) state {
 		s.startToken()
 		return s.int
 
+	case c == '\'':
+		s.startToken()
+		return s.char
+
 	default:
 		s.buf.Reset()
 		s.buf.WriteRune(c)
@@ -260,6 +264,25 @@ func (s *Scanner) float(eof bool) state {
 		s.endToken(FLOAT, v)
 		return nil
 	}
+}
+
+func (s *Scanner) char(eof bool) state {
+	if eof {
+		s.throw(errors.New("unterimnated char literal"))
+		return nil
+	}
+
+	c := s.read()
+	if c == '\\' {
+		c = s.readEscapeSeq()
+	}
+
+	if s.read() != '\'' {
+		s.throw(errors.New("char literal is too long"))
+	}
+
+	s.endToken(INT, c)
+	return nil
 }
 
 func (s *Scanner) symbol(eof bool) state {
