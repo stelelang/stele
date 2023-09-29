@@ -130,14 +130,14 @@ func (s *Scanner) whitespace(eof bool) state {
 
 	c := s.read()
 	switch {
-	case c == '\n':
-		if preventSemi(s.Tok()) {
-			return s.whitespace
-		}
+	//case c == '\n':
+	//	if preventSemi(s.Tok()) {
+	//		return s.whitespace
+	//	}
 
-		s.startToken()
-		s.endToken(SEMI, ";")
-		return nil
+	//	s.startToken()
+	//	s.endToken(SEMI, ";")
+	//	return nil
 
 	case unicode.IsSpace(c):
 		return s.whitespace
