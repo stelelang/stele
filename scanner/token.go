@@ -17,6 +17,7 @@ var (
 		"else":   ELSE,
 		"switch": SWITCH,
 		"as":     AS,
+		"return": RETURN,
 	}
 
 	symbols = map[string]Type{
@@ -71,6 +72,7 @@ const (
 	ELSE
 	SWITCH
 	AS
+	RETURN
 
 	// Symbols
 	LPAREN      // (
