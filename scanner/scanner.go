@@ -28,7 +28,7 @@ func New(r io.Reader) *Scanner {
 	}
 }
 
-func (s *Scanner) Scan() bool {
+func (s *Scanner) Scan() (more bool) {
 	if s.err != nil {
 		return false
 	}
@@ -43,6 +43,7 @@ func (s *Scanner) Scan() bool {
 			s.err = fmt.Errorf("(%v:%v) %w", s.line, s.col, err.err)
 			if errors.Is(s.err, io.EOF) {
 				state(true)
+				more = true
 			}
 		case nil:
 			return
@@ -55,7 +56,7 @@ func (s *Scanner) Scan() bool {
 		state = state(false)
 	}
 
-	return s.err != nil
+	return s.err == nil
 }
 
 func (s *Scanner) throw(err error) {
