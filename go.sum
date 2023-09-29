@@ -1,5 +1,3 @@
-deedles.dev/mk v0.1.0 h1:xrvuJA3+R/j6/6AZPc+o31I1rotdKLrAYJxhZJwdOuc=
-deedles.dev/mk v0.1.0/go.mod h1:TSFsz0T+BvhNqJae0yrj+KadkN4elx248PCpq2Ol4ME=
 golang.org/x/mod v0.12.0 h1:rmsUpXtvNzj340zd98LZ4KntptpfRHwpFOHG188oHXc=
 golang.org/x/mod v0.12.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/sync v0.3.0 h1:ftCYgMx6zT/asHUrPw8BLLscYtGznsLAnjq5RH9P66E=
