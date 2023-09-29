@@ -42,7 +42,7 @@ func (p *parser) expect(t scanner.Type) scanner.Token {
 		p.throw(fmt.Errorf("expected %v but found end of input", t))
 	}
 	if (t >= 0) && (tok.Type != t) {
-		p.throw(fmt.Errorf("expected %v but found %v", t, tok.Type))
+		p.throw(fmt.Errorf("(%v:%v) expected %v but found %v", tok.Line, tok.Col, t, tok.Type))
 	}
 
 	return tok
@@ -101,6 +101,7 @@ func (p *parser) parseLet() ast.Let {
 	tok := p.expect(-1)
 	switch tok.Type {
 	case scanner.IDENT:
+		// TODO: Handle explicit typing.
 		panic("Not implemented.")
 	case scanner.ASSIGN:
 		rhs := p.parseExpr()
@@ -116,7 +117,15 @@ func (p *parser) parseLet() ast.Let {
 }
 
 func (p *parser) parseExpr() stele.Expr {
-	panic("Not implemented.")
+	tok := p.expect(-1)
+	switch tok.Type {
+	case scanner.INT:
+		// TODO: Handle binary operators.
+		p.expect(scanner.SEMI)
+		return ast.Int{Val: tok.Val.(int64)}
+	default:
+		panic("Not implemented.")
+	}
 }
 
 func (p *parser) throw(err error) {
