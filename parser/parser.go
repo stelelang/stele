@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -47,17 +48,26 @@ func (p *parser) expect(t scanner.Type) scanner.Token {
 }
 
 func (p *parser) parseScript() stele.Script {
-	var decls []stele.Declaration
 	var script stele.Script
+	var decls []stele.Declaration
+	allowImport := true
+
 	for {
 		tok, ok := p.next()
 		if !ok {
+			script.Scope = script.Scope.AddAll(decls)
 			return script
 		}
 
 		switch tok.Type {
 		case scanner.IMPORT:
+			if !allowImport {
+				p.throw(errors.New("imports must come before all other top-level declarations"))
+			}
 			decls = append(decls, p.parseImport())
+		case scanner.LET:
+			allowImport = false
+			decls = append(decls, p.parseLet())
 		default:
 			p.throw(UnexpectedTokenError{tok})
 		}
@@ -75,12 +85,33 @@ func (p *parser) parseImport() stele.ImportDecl {
 		return stele.ImportDecl{Name: id, Path: path}
 
 	case scanner.SEMI:
+		// TODO: Is the basename good enough?
 		return stele.ImportDecl{Name: filepath.Base(path), Path: path}
 
 	default:
 		p.throw(UnexpectedTokenError{tok})
 		return stele.ImportDecl{}
 	}
+}
+
+func (p *parser) parseLet() stele.LetDecl {
+	id := p.expect(scanner.IDENT).Val.(string)
+
+	tok := p.expect(-1)
+	switch tok.Type {
+	case scanner.IDENT:
+		panic("Not implemented.")
+	case scanner.ASSIGN:
+		rhs := p.parseExpr()
+		return stele.LetDecl{Name: id, T: rhs.Type(), RHS: rhs}
+	default:
+		p.throw(UnexpectedTokenError{tok})
+		return stele.LetDecl{}
+	}
+}
+
+func (p *parser) parseExpr() stele.Expr {
+	panic("Not implemented.")
 }
 
 func (p *parser) throw(err error) {
