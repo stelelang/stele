@@ -1,7 +1,5 @@
 package stele
 
-import "strings"
-
 type Scope struct {
 	parent *Scope
 	ids    func() []string
@@ -78,54 +76,4 @@ type Declaration interface {
 	Type() Type
 	Mutable() bool
 	Exported() bool
-}
-
-type ImportDecl struct {
-	Name string
-	Path string
-}
-
-func (d ImportDecl) ID() string     { return d.Name }
-func (d ImportDecl) Type() Type     { panic("Not implemented.") }
-func (d ImportDecl) Mutable() bool  { return false }
-func (d ImportDecl) Exported() bool { return false }
-
-type LetDecl struct {
-	Name string
-	T    Type
-	RHS  Expr
-}
-
-func (d LetDecl) ID() string     { return d.Name }
-func (d LetDecl) Type() Type     { return d.T }
-func (d LetDecl) Mutable() bool  { return !strings.HasSuffix(d.Name, "!") }
-func (d LetDecl) Exported() bool { return !strings.HasPrefix(d.Name, "_") }
-
-type Type struct {
-	Name     string
-	Features []Feature
-}
-
-//go:generate go run golang.org/x/tools/cmd/stringer -type FeatureType
-
-type FeatureType int
-
-const (
-	InvalidFeature FeatureType = iota
-	LetFeature
-	FuncFeature
-	MemLayoutFeature
-)
-
-type Feature struct {
-	Type FeatureType
-	Name string
-
-	Args   []Type
-	Return Type
-}
-
-type Expr interface {
-	Type() Type
-	//Eval(*State) Value
 }
