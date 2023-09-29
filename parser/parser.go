@@ -47,6 +47,7 @@ func (p *parser) expect(t scanner.Type) scanner.Token {
 }
 
 func (p *parser) parseScript() stele.Script {
+	var decls []stele.Declaration
 	var script stele.Script
 	for {
 		tok, ok := p.next()
@@ -56,29 +57,29 @@ func (p *parser) parseScript() stele.Script {
 
 		switch tok.Type {
 		case scanner.IMPORT:
-			script.Declarations.Add(p.parseImport())
+			decls = append(decls, p.parseImport())
 		default:
 			p.throw(UnexpectedTokenError{tok})
 		}
 	}
 }
 
-func (p *parser) parseImport() (id, path string) {
-	path = p.expect(scanner.STRING).Val.(string)
+func (p *parser) parseImport() stele.ImportDecl {
+	path := p.expect(scanner.STRING).Val.(string)
 
 	tok := p.expect(-1)
 	switch tok.Type {
 	case scanner.AS:
-		id = p.expect(scanner.IDENT).Val.(string)
+		id := p.expect(scanner.IDENT).Val.(string)
 		p.expect(scanner.SEMI)
-		return id, path
+		return stele.ImportDecl{Name: id, Path: path}
 
 	case scanner.SEMI:
-		return filepath.Base(path), path
+		return stele.ImportDecl{Name: filepath.Base(path), Path: path}
 
 	default:
 		p.throw(UnexpectedTokenError{tok})
-		return
+		return stele.ImportDecl{}
 	}
 }
 
