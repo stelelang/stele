@@ -93,6 +93,7 @@ func (d ImportDecl) Exported() bool { return false }
 type LetDecl struct {
 	Name string
 	T    Type
+	RHS  Expr
 }
 
 func (d LetDecl) ID() string     { return d.Name }
@@ -122,4 +123,9 @@ type Feature struct {
 
 	Args   []Type
 	Return Type
+}
+
+type Expr interface {
+	Type() Type
+	//Eval(*State) Value
 }
