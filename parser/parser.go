@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"deedles.dev/stele"
+	"deedles.dev/stele/parser/ast"
 	"deedles.dev/stele/scanner"
 )
 
@@ -74,7 +75,7 @@ func (p *parser) parseScript() stele.Script {
 	}
 }
 
-func (p *parser) parseImport() stele.ImportDecl {
+func (p *parser) parseImport() ast.Import {
 	path := p.expect(scanner.STRING).Val.(string)
 
 	tok := p.expect(-1)
@@ -82,19 +83,19 @@ func (p *parser) parseImport() stele.ImportDecl {
 	case scanner.AS:
 		id := p.expect(scanner.IDENT).Val.(string)
 		p.expect(scanner.SEMI)
-		return stele.ImportDecl{Name: id, Path: path}
+		return ast.Import{Name: id, Path: path}
 
 	case scanner.SEMI:
 		// TODO: Is the basename good enough?
-		return stele.ImportDecl{Name: filepath.Base(path), Path: path}
+		return ast.Import{Name: filepath.Base(path), Path: path}
 
 	default:
 		p.throw(UnexpectedTokenError{tok})
-		return stele.ImportDecl{}
+		return ast.Import{}
 	}
 }
 
-func (p *parser) parseLet() stele.LetDecl {
+func (p *parser) parseLet() ast.Let {
 	id := p.expect(scanner.IDENT).Val.(string)
 
 	tok := p.expect(-1)
@@ -103,10 +104,14 @@ func (p *parser) parseLet() stele.LetDecl {
 		panic("Not implemented.")
 	case scanner.ASSIGN:
 		rhs := p.parseExpr()
-		return stele.LetDecl{Name: id, T: rhs.Type(), RHS: rhs}
+		return ast.Let{
+			Name:   id,
+			T:      rhs.Type(),
+			Assign: &stele.Assign{ID: id, Val: rhs},
+		}
 	default:
 		p.throw(UnexpectedTokenError{tok})
-		return stele.LetDecl{}
+		return ast.Let{}
 	}
 }
 
