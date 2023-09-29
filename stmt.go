@@ -20,28 +20,24 @@ type Expr interface {
 	Eval(*State) Value
 }
 
+// A Block represents a series of statements.
 type Block struct {
-	T     Type
 	Stmts []Stmt
-}
-
-func (b Block) Type() Type {
-	return b.T
 }
 
 func (b Block) Eval(state *State) Value {
 	for _, stmt := range b.Stmts {
-		v := stmt.Eval(state)
-		if v.Valid() {
-			return v
-		}
+		stmt.Eval(state)
 	}
 	return Value{}
 }
 
+// An Assign is an assignment statement. It evaluates an expression
+// and assigns it to a variable.
 type Assign struct {
-	ID  string
-	Val Expr
+	Recv string
+	ID   string
+	Val  Expr
 }
 
 func (a Assign) Eval(state *State) Value {
